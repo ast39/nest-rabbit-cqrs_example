@@ -1,0 +1,25 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["cqrs_users"]
+}
+
+model User {
+  userId     Int     @id @default(autoincrement()) @map("user_id") @db.Integer()
+  userName   String? @map("user_name") @db.VarChar(128)
+  userEmail  String? @map("user_email") @db.VarChar(128)
+  userPhone  String? @map("user_phone") @db.VarChar(128)
+  carCounter Int     @default(0) @map("car_counter") @db.Integer()
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  isDeleted Boolean  @default(false) @map("is_deleted") @db.Boolean()
+
+  @@map("users")
+  @@schema("cqrs_users")
+}

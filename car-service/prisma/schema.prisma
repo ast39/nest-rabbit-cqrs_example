@@ -1,0 +1,38 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["cqrs_cars"]
+}
+
+model Car {
+  carId    Int    @id @default(autoincrement()) @map("car_id") @db.Integer()
+  carMark  String @map("car_mark") @db.VarChar(128)
+  carModel String @map("car_model") @db.VarChar(128)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  isDeleted Boolean  @default(false) @map("is_deleted") @db.Boolean()
+
+  users UserCar[] @relation("CarUsers")
+
+  @@map("cars")
+  @@schema("cqrs_cars")
+}
+
+model UserCar {
+  carId  Int @map("car_id") @db.Integer()
+  userId Int @map("user_id") @db.Integer()
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  chat Car @relation("CarUsers", fields: [carId], references: [carId], onDelete: Cascade)
+
+  @@id([carId, userId])
+  @@map("user_cars")
+  @@schema("cqrs_cars")
+}
